@@ -1,0 +1,28 @@
+The task is to construct a tower in N days.
+
+The number N is be given as the first line of input as a single int
+
+disks with larger sizes are placed at the bottom of the tower.
+disks with smaller sizes are placed on top.
+disk sizes go from (1,2,3...N-1,N)
+
+the int at the ith day denotes the size of the disks that are given
+on the ith day - if 4 was given on day 1, 5 will be given on day 2.
+which means the first integer x will determine the next max which 
+would be x-1. and once x-1 is found it can be placed on the bottom.
+
+
+Pseudo code:
+int main(int argc, char **argv)
+{
+	scan a single int from the first line of input - save it as N.
+	set max to N.
+	for (int day=0; day<N; day++) {
+		scan a single integer.
+		if (int == max)
+			max = rear-1.
+		
+		
+
+	}
+}
