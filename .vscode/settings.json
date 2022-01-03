@@ -10,6 +10,8 @@
         "complex": "cpp",
         "stdlib.h": "c",
         "ctype.h": "c",
-        "ll-sorting.h": "c"
+        "ll-sorting.h": "c",
+        "exception": "c",
+        "limits": "c"
     }
 }
