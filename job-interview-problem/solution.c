@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <string.h>
-#include <ctype.h>
 #include <stdlib.h>
+#include <ctype.h>
+
+#define MAX_SEQ_TO_FIND 1000
 
 typedef struct q_node {
 	int data;
@@ -46,64 +48,64 @@ int enqueue(Queue *q, int data)
 	if (isEmpty(q)) {
 		if (!(q->head = q->tail = newNode(data)))
 			return 0;
-		return data;
+		return 1;
 	}
 	if (!(q->tail->next = newNode(data)))
 		return 0;
 	q->tail = q->tail->next;
-	return data;
-}
-
-int addFront(Queue *q, int data)
-{
-	Qnode *temp;
-	if (!q)
-		return 0;
-	if (isEmpty(q)) {
-		return enqueue(q, data);
-	}
-	if (!(temp = newNode(data)))
-		return 0;
-	temp->next = q->head;
-	q->head = temp;
-	return data;
+	return 1;
 }
 
 int dequeue(Queue *q)
 {
 	Qnode *temp;
-	int tempData;
 	if (isEmpty(q))
 		return 0;
 	temp = q->head;
-	tempData = q->head->data;
 	if (!(q->head = q->head->next))
 		q->tail = NULL;
 	free(temp);
-	return tempData;
+	return 1;
 }
 
 int main(int argc, char **argv)
 {
-	const char sequence[] = "101010";
-	const size_t seqLen = strlen(sequence);
-	int c, i=0;
-	size_t size=1;
 	Queue *q = newQueue();
 	Qnode *ptr;
+	size_t seqLen, size=1;
+	char sequence[MAX_SEQ_TO_FIND+1];
+	int c=0, i=0;
 	
+	printf("\nPlease enter the sequence which you wish to find (up to %d characters):\n", MAX_SEQ_TO_FIND);
+	while (!isspace((c=getchar()))) {
+		if (c==EOF) {
+			printf("Error! reached end of file.");
+			return EXIT_FAILURE;
+		}
+		if (i>=MAX_SEQ_TO_FIND)
+			break;
+		sequence[i++] = c;
+	}
+	sequence[i] = '\0';
+	seqLen = strlen(sequence);
+
+	printf("\nEnter your stream to scan (program will stop at end of stream):\n");
+
 	while (size<=seqLen && (c=getchar())!=EOF) {
 		enqueue(q, c);
 		size++;
 	}
 	
-	if (size<=seqLen)
+	if (size<=seqLen) {
+		printf("Error: stream is smaller than the actual sequence.");
 		return EXIT_FAILURE;
+	}
 
 	for (i=0; i<seqLen-1; i++)
 		printf("0");
 
 	do {
+		i=0;
 		ptr = q->head;
 		while (ptr!=NULL && ptr->data == sequence[i]) {
 			ptr = ptr->next;
@@ -113,9 +115,11 @@ int main(int argc, char **argv)
 			printf("1");
 		else
 			printf("0");
+
 		ptr=NULL;
-		i=0;
-	} while (((c=getchar())=='0' || c=='1') && dequeue(q) && enqueue(q, c));
+		while ((c=getchar())!=EOF && !isalnum(c))
+			putchar(c);
+	} while (c!=EOF && dequeue(q) && enqueue(q, c));
 	printf("\n");
 
 	return 0;
