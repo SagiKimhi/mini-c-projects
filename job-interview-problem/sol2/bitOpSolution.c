@@ -1,11 +1,8 @@
 #include <stdio.h>
 
-#define BIT_SYS_32
-/* #define BIT_SYS_64 */
-
-#ifdef BIT_SYS_32
+#if !defined __X86_64__
 #define SIZE_T_MAX 32
-#elif BIT_SYS_64
+#else
 #define SIZE_T_MAX 64
 #endif
 
@@ -18,23 +15,29 @@ size_t charInBits(char c)
 	return 0x0;
 }
 
-size_t strToBits(char str[])
+size_t strToBits(char str[], size_t *bit)
 {
 	size_t x = 0;
 	size_t size = 0, i = 0;
 	while (str[i] && ++size<SIZE_T_MAX) {
-		x |= charInBits(str[i]);
 		x <<= 1;
+		x |= charInBits(str[i]);
 		i++;
 	}
-	return x>>1;
+	*bit=x;
+	return size;
 }
 
 int main(int argc, char **argv)
 {
-	const size_t patternBits = strToBits(PATTERN);
-	size_t inputBits=0;
-	int c;
+	size_t patternBits, reset=0, inputBits=0, inSize=0;
+	const size_t patSize = strToBits(PATTERN, &patternBits);
+	int c, i=patSize;
+
+	while (i--) {
+		reset <<= 0x1;
+		reset |= 0x1;
+	}
 
 	printf("Enter your binary stream here:\n");
 	while ((c = getchar())!=EOF) {
@@ -42,13 +45,21 @@ int main(int argc, char **argv)
 			putchar(c);
 			continue;
 		}
+
 		inputBits |= charInBits(c);
-		if (patternBits != (patternBits & inputBits))
+		inSize++;
+
+		if (inSize > patSize)
+			inputBits &= reset;
+
+		if ((patternBits^inputBits)!=0)
 			printf("0");
 		else
 			printf("1");
+
 		inputBits <<= 1;
 	}
+
 	printf("\n");
 
 	return 0;
